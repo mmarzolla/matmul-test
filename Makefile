@@ -19,9 +19,9 @@ matmul_ikj_simd_auto.o: CFLAGS=-O2 -ffast-math -ftree-vectorize -march=native
 
 matmul_ikj_omp.o: CFLAGS=-O2 -fopenmp
 
-matmul_ikj_simd.o: CFLAGS=-O2 -mavx2 -mfma -ffast-math
+matmul_ikj_simd.o: CFLAGS=-O2 -march=native -ffast-math
 
-matmul_ikj_simd_omp.o: CFLAGS=-O2 -fopenmp -mavx2 -mfma -ffast-math
+matmul_ikj_simd_omp.o: CFLAGS=-O2 -fopenmp -march=native -ffast-math
 
 matmul_dac.o: CFLAGS=-O2 -fopenmp -ftree-vectorize -march=native -ffast-math
 

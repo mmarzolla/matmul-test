@@ -2,7 +2,7 @@
  *
  * matmul-test.c - Dense matrix-matrix product, scaffolding
  *
- * Copyright (C) 2025 by Moreno Marzolla <https://www.moreno.marzolla.name/>
+ * Copyright (C) 2025, 2026 by Moreno Marzolla <https://www.moreno.marzolla.name/>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -128,7 +128,7 @@ int main( int argc, char *argv[] )
 #else
     printf("NOT using 'restrict' keyword\n\n");
 #endif
-    printf("Key Algorithm                             Time (s)     Gflops Sum\n");
+    printf("Key Algorithm                             Time (s)     Gflops Check\n");
     printf("--- ----------------------------------- ---------- ---------- ------------------\n");
     for (int i=0; matmul_algos[i].algo != NULL; i++) {
 

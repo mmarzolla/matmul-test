@@ -57,9 +57,9 @@ table below.
 | `matmul_ijk.c`           | Unoptimized reference algorithm                                 | (none)                                                    |
 | `matmul_opt.c`           | Compiler optimization, all permutations of the nested loops     | `-O2`                                                     |
 | `matmul_ikj_simd_auto.c` | _ikj_ nesting + compiler vectorization                          | `-O2 -ffast-math -ftree-vectorize -march=native`          |
-| `matmul_ikj_simd.c`      | _ikj_ nesting + manual vectorization using AVX2 SIMD extensions | `-O2 -ffast-math -mavx2 -mfma`                            |
+| `matmul_ikj_simd.c`      | _ikj_ nesting + manual vectorization using AVX2 SIMD extensions | `-O2 -ffast-math -march=native -mfma`                     |
 | `matmul_ikj_omp.c`       | _ikj_ nesting + parallel loops using OpenMP                     | `-O2 -fopenmp`                                            |
-| `matmul_ikj_simd_omp.c`  | _ikj_ nesting + manual vectorization + parallel loops           | `-O2 -fopenmp -mavx2 -mfma -ffast-math`                   |
+| `matmul_ikj_simd_omp.c`  | _ikj_ nesting + manual vectorization + parallel loops           | `-O2 -fopenmp -march=native -mfma -ffast-math`            |
 | `matmul_dac.c`           | Divide-and-conquer + compiler vectoriation + OpenMP tasking     | `-O2 -fopenmp -ftree-vectorize -march=native -ffast-math` |
 
 
