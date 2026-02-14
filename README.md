@@ -156,16 +156,16 @@ hardware.
 | Feature             | Value                                      |
 |---------------------|--------------------------------------------|
 | Processor Type      | Intel(R) Core(TM) i9-12900F                |
-| Clock frequency     | 5.1 GHz                                    |
+| Clock frequency     | 5.1 GHz (P-core), 3.8 GHz (E-core)         |
 | Processor chips     | 1                                          |
-| Processing cores    | 8P+8E                                      |
-| Threads per core    | 2 per P-core                               |
+| Processing cores    | 8 P-cores + 8 E-cores                      |
+| Threads per core    | 2 per P-core, 1 per E-core                 |
 | Floating-point unit | 614.4 GFLOPS[^1]                           |
 | SIMD extensions     | MMX, SSE, SSE2, SSE3, SSE4_1, SSE4_2, AVX2 |
-| L1-dcache           | 640 KB x 16                                |
-| L1-icache           | 768 KB x 16                                |
-| L2-cache            | 14 MB x 10                                 |
-| L3-cache            | 30 MB x 1                                  |
+| L1-dcache           | 640 KB total (16 instances)                |
+| L1-icache           | 768 KB total (16 instances)                |
+| L2-cache            | 14 MB total (10 instances)                 |
+| L3-cache            | 30 MB total (one instance)                 |
 | DRAM                | 64 GB                                      |
 | OS                  | Ubuntu 24.04 Linux 6.14.0-37-generic       |
 | Python              | 3.12.3                                     |
@@ -205,7 +205,7 @@ the execution time with $n=1024$ multiplied by $4^3$.
 Each iteration of the innermost loop performs two floating-point
 operations (one addition and one multiplication). Therefore, the total
 number of floating-point operations is $2n^3$, where $n$ is the matrix
-size, and the GFLOPS are:
+size. The GFLOPS are estimated as:
 
 ```math
 \text{GFLOPS} = \frac{2n^3}{\text{Execution Time}}
