@@ -28,7 +28,7 @@ The C program includes several implementations of the matrix-matrix
 multiplication algorithm, with various levels of optimization.
 
 The starting point is the _ijk_ algorithm, that refers to the classic
-"textbook" program corresponding to the following C code:
+"textbook" program that corresponds to the following C code:
 
 ```C
 /* Compute r = p * q */
@@ -45,21 +45,20 @@ void matmul(const float * restrict p, const float * restrict q, float * restrict
 }
 ```
 
-Upon that, several optimizations are applied with more or less
-increasing level of effectiveness.
+Upon that, several optimizations are applied.
 
-The source code is split into several files that are compiled
+The source code is split into several source files that are compiled
 separately, possibly with different compiler flags as shown in the
 table below.
 
 | Source                   | Description                                                     | Compiler flags                                            |
 |--------------------------|-----------------------------------------------------------------|-----------------------------------------------------------|
 | `matmul_ijk.c`           | Unoptimized reference algorithm                                 | (none)                                                    |
-| `matmul_opt.c`           | Compiler optimization, all permutations of the nested loops     | `-O2`                                                     |
+| `matmul_opt.c`           | Compiler optimization                                           | `-O2`                                                     |
 | `matmul_ikj_simd_auto.c` | _ikj_ nesting + compiler vectorization                          | `-O2 -ffast-math -ftree-vectorize -march=native`          |
-| `matmul_ikj_simd.c`      | _ikj_ nesting + manual vectorization using AVX2 SIMD extensions | `-O2 -ffast-math -march=native -mfma`                     |
+| `matmul_ikj_simd.c`      | _ikj_ nesting + manual vectorization using SIMD extensions      | `-O2 -ffast-math -march=native`                           |
 | `matmul_ikj_omp.c`       | _ikj_ nesting + parallel loops using OpenMP                     | `-O2 -fopenmp`                                            |
-| `matmul_ikj_simd_omp.c`  | _ikj_ nesting + manual vectorization + parallel loops           | `-O2 -fopenmp -march=native -mfma -ffast-math`            |
+| `matmul_ikj_simd_omp.c`  | _ikj_ nesting + manual vectorization + parallel loops           | `-O2 -fopenmp -march=native -ffast-math`                  |
 | `matmul_dac.c`           | Divide-and-conquer + compiler vectoriation + OpenMP tasking     | `-O2 -fopenmp -ftree-vectorize -march=native -ffast-math` |
 
 
@@ -89,7 +88,7 @@ Run the Python program as:
 ```
 
 where the optional parameter `n` is the matrix size (default 4096;
-**WARNING** the Python program requires several hours with the default
+**WARNING** the Python program may take several hours with the default
 matrix size!).
 
 Run the Java program as:
@@ -144,56 +143,64 @@ the parallel divide-and-conquer (key `k`) on matrices of size $2048
 >
 > ```OMP_NUM_THREADS=16 OMP_PLACES="0:15" ./matmul-test```
 
+> [!NOTE]
+> These results are not intended to provide a reliable benchmark of
+> the processor nor the compilers/interpreter used.
+
 ## Hardware/Software configuration
 
 The following table reports the hardware/software configuration of the
 machine used for the tests; the program has been executed on the bare
 hardware.
 
-| Feature              | Value                                  |
-|----------------------|----------------------------------------|
-| Processor Type       | Intel(R) Core(TM) i7-9800X             |
-| Clock frequency      | 3.8 GHz                                |
-| Processor chips      | 1                                      |
-| Processing cores     | 8	                                    |
-| Threads per core     | 2                                      |
-| Floating-point unit  | 742 GFLOPS[^1]                         |
-| L1-icache	           | 256 KB x 8                             |
-| L1-dcache            | 256 KB x 8                             |
-| L2-cache             | 8 MB x 8                               |
-| L3-cache             | 16.5 MB                                |
-| DRAM                 | 32 GB                                  |
-| OS                   | Ubuntu 24.04 Linux 6.14.0-29-generic   |
-| Python               | 3.12.3                                 |
-| Java                 | openjdk 21.0.8 2025-07-15              |
-| gcc                  | 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04)  |
-| Matrix size          | 4096                                   |
+| Feature             | Value                                      |
+|---------------------|--------------------------------------------|
+| Processor Type      | Intel(R) Core(TM) i9-12900F                |
+| Clock frequency     | 5.1 GHz                                    |
+| Processor chips     | 1                                          |
+| Processing cores    | 8P+8E                                      |
+| Threads per core    | 2 per P-core                               |
+| Floating-point unit | 614.4 GFLOPS[^1]                           |
+| SIMD extensions     | MMX, SSE, SSE2, SSE3, SSE4_1, SSE4_2, AVX2 |
+| L1-dcache           | 640 KB x 16                                |
+| L1-icache           | 768 KB x 16                                |
+| L2-cache            | 14 MB x 10                                 |
+| L3-cache            | 30 MB x 1                                  |
+| DRAM                | 64 GB                                      |
+| OS                  | Ubuntu 24.04 Linux 6.14.0-37-generic       |
+| Python              | 3.12.3                                     |
+| Java                | openjdk 21.0.10 2026-01-20                 |
+| gcc                 | 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04)      |
+| Matrix size         | 4096                                       |
 
 [^1]: Peak performance (GFLOPS) taken from [this
 page](https://www.intel.com/content/www/us/en/support/articles/000005755/processors.html).
 
 ## Results
 
-- _Time_ is the execution time, in seconds;
+- _Time_ is the execution time, in seconds, average of five independent executions;
 - _GFLOPS_ is an estimate of the number of floating-point operations, in billions ($10^9$, see below);
-- _% of peak_ is the percentage of peak performance achieved by the algorithm; the peak performance of this machine is 742 GFLOPS;
+- _% of peak_ is the percentage of peak performance achieved by the algorithm; the peak performance of this machine is 614 GFLOPS;
 - _Speedup_ is the relative speedup with respect with Python.
 
-|                             | Time (s) | GFLOPS | % of peak |  Speedup |
-|-----------------------------|---------:|-------:|----------:|---------:|
-| Python                      | 13422.66 |   0.01 |     0.00% |     1.00 |
-| Java                        |   463.77 |   0.30 |     0.04% |    28.94 |
-| Serial ijk                  |  1582.71 |   0.09 |     0.01% |     8.48 |
-| Serial ijk + O2             |   559.39 |   0.25 |     0.03% |    24.00 |
-| Serial ikj + O2             |    43.73 |   3.14 |     0.42% |   306.94 |
-| Serial jik + O2             |   366.82 |   0.37 |     0.05% |    36.59 |
-| Serial jki + O2             |  1108.43 |   0.12 |     0.02% |    12.11 |
-| Serial kij + O2             |    44.57 |   3.08 |     0.42% |   301.17 |
-| Serial kji + O2             |  1157.95 |   0.12 |     0.02% |    11.59 |
-| ikj + auto SIMD             |    21.97 |   6.25 |     0.84% |   610.87 |
-| ikj + manual SIMD           |    23.14 |   5.94 |     0.80% |   580.14 |
-| ikj + manual SIMD + OpenMP  |     1.84 |  74.82 |    10.08% |  7306.84 |
-| Parallel divide-and-conquer |     1.06 | 129.66 |    17.47% | 12662.88 |
+|                             |    Time (s) | GFLOPS | % of peak |  Speedup |
+|-----------------------------|------------:|-------:|----------:|---------:|
+| Python                      | 6711.86[^2] |   0.02 |     0.00% |     1.00 |
+| Java                        |      322.02 |   0.43 |     0.07% |    20.84 |
+| Serial ijk                  |      489.84 |   0.28 |     0.05% |    13.70 |
+| Serial ijk + O2             |      322.20 |   0.41 |     0.07% |    20.20 |
+| Serial ikj + O2             |       22.19 |   6.19 |     1.01% |   302.49 |
+| Serial jik + O2             |      182.30 |   0.75 |     0.12% |    36.82 |
+| Serial jki + O2             |      577.15 |   0.24 |     0.04% |    11.43 |
+| Serial kij + O2             |       21.32 |   6.45 |     1.05% |   314.79 |
+| Serial kji + O2             |      546.62 |   0.25 |     0.04% |    12.28 |
+| ikj + auto SIMD             |       10.16 |  13.52 |     2.20% |   660.32 |
+| ikj + manual SIMD           |       12.50 |  11.00 |     1.79% |   537.10 |
+| ikj + manual SIMD + OpenMP  |        1.24 | 110.70 |    18.03% |  5405.80 |
+| Parallel divide-and-conquer |        0.43 | 316.68 |    51.58% | 15465.08 |
+
+[^2]: The execution time of the Python program has been estimated from
+the execution time with $n=1024$ multiplied by $4^3$.
 
 Each iteration of the innermost loop performs two floating-point
 operations (one addition and one multiplication). Therefore, the total
@@ -206,18 +213,16 @@ size, and the GFLOPS are:
 
 ## Discussion
 
-- The most striking result is that Java is _four times faster_ than
+- The most striking result is that Java is _1.5 times faster_ than
   unoptimized C code. This is in stark contrast with the results shown
-  in the MIT lecture from year 2018, where Java was two times
-  slower. Java is still faster than optimized code produced by `gcc`
-  with the `-O2` flag. This happens on all processors of different
-  generation that I was able to test.
+  in the MIT lecture from 2018, where Java was two times slower. Java
+  is still faster, by a small margin, than optimized code produced by
+  `gcc` with the `-O2` flag.
 - Different permutations of the loop nest show wide variations in the
   execution time. This is consistent with the MIT lecture, and is due
   to memory access patterns that are more or less cache-friendly.
-- Compiler auto-vectorization produces faster code than manual
-  vectorization using AVX2 extensions (I wrote the SIMD code from
-  scratch, so it might be sub-optimal).
+- Compiler auto-vectorization produces surprisingly efficient code
+  which is only a bit slower than hand-coded SIMD.
 - The single-core SIMD version is only twice as fast as the
   unvectorized code. This is disappointing since we are using AVX2
   instructions with 256-bit registers that can hold 8 floats, so one
