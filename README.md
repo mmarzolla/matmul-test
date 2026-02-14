@@ -222,7 +222,7 @@ size. The GFLOPS are estimated as:
   execution time. This is consistent with the MIT lecture, and is due
   to memory access patterns that are more or less cache-friendly.
 - Compiler auto-vectorization produces surprisingly efficient code
-  which is only a bit slower than hand-coded SIMD.
+  that is faster than hand-coded SIMD.
 - The single-core SIMD version is only twice as fast as the
   unvectorized code. This is disappointing since we are using AVX2
   instructions with 256-bit registers that can hold 8 floats, so one
