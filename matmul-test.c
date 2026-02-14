@@ -20,13 +20,14 @@
  *
  * Run with:
  *
- *      ./matmul-test [-a algos] [-h] [problem_size]
+ *      ./matmul-test [-a algos] [-r nrep] [-h] [problem_size]
  *
  * Where:
  * - `algos` ia a string of characters denoting the algorithms
- *   to test; use the `-h` option to see the list of keys. Default
- *   is to test all algorithms.
- * - `problem_size` is the side of the matrix.
+ *   to test; use the `-h` option to see the list of keys; default
+ *   test all algorithms.
+ * - `nrep` is the number of measurements to take; default 1.
+ * - `problem_size` is the side of the matrix; default 4096.
  *
  ****************************************************************************/
 
@@ -80,7 +81,8 @@ struct {
 
 void print_help( const char *exec_name )
 {
-    printf("Usage: %s [-a algos] [-h] [problem_size]\n\n", exec_name);
+    printf("Usage: %s [-a algos] [-r nrep] [-h] [problem_size]\n\n", exec_name);
+    printf("\tnrep is the number of measurements to take (default: 1)\n");
     printf("\talgos is the list of keys of the algorithms to test (default: all);\n\tsee below.\n\n");
     printf("[key] algo:\n\n");
     for (int i=0; matmul_algos[i].algo != NULL; i++) {
@@ -94,13 +96,16 @@ int main( int argc, char *argv[] )
     const size_t MEM_ALIGNEMENT = 32;
     int opt, err;
     const char *algostr = NULL;
-    int n = 4096;
+    int n = 4096, nrep = 1;
     float *p, *q, *r;
 
-    while ((opt = getopt(argc, argv, "a:h")) != -1) {
+    while ((opt = getopt(argc, argv, "a:r:h")) != -1) {
         switch (opt) {
         case 'a':
             algostr = optarg;
+            break;
+        case 'r':
+            nrep = atoi(optarg);
             break;
         case 'h':
         default:
@@ -122,14 +127,15 @@ int main( int argc, char *argv[] )
     fill(p, n);
     fill(q, n);
 
-    printf("\nMatrix-Matrix multiplication (C) %d x %d\n", n, n);
+    printf("# Matrix-Matrix multiplication, C version\n");
 #ifdef RESTRICT
-    printf("Using 'restrict' keyword\n\n");
+    printf("# Using 'restrict' keyword\n");
 #else
-    printf("NOT using 'restrict' keyword\n\n");
+    printf("# NOT using 'restrict' keyword\n");
 #endif
-    printf("Key Algorithm                             Time (s)     Gflops Check\n");
-    printf("--- ----------------------------------- ---------- ---------- ------------------\n");
+    printf("# n %d\n", n);
+    printf("# nrep %d\n", nrep);
+    printf("# algorithm, time1, ..., check\n");
     for (int i=0; matmul_algos[i].algo != NULL; i++) {
 
         /* skip if algostr is provided and does not contain the key of
@@ -137,20 +143,22 @@ int main( int argc, char *argv[] )
         if (algostr && !strchr(algostr, 'a' + i))
             continue;
 
-        printf("[%c] %-35s ", 'a'+i, matmul_algos[i].description); fflush(stdout);
-        /* Purge data from cache; `__builtin___clear_cache()` is a
-           built-in function that acts as a portable interface for the
-           appropriate low-level OS function, if available. The
-           (void*) casts are required to make the clang compiler
-           happy. */
-        __builtin___clear_cache((void*)p, (void*)(p + MAT_SIZE));
-        __builtin___clear_cache((void*)q, (void*)(q + MAT_SIZE));
-        __builtin___clear_cache((void*)r, (void*)(r + MAT_SIZE));
-        const double tstart = omp_get_wtime();
-        matmul_algos[i].algo(p, q, r, n);
-        const double elapsed = omp_get_wtime() - tstart;
-        const double Gflops = 2.0 * (n/1000.0) * (n/1000.0) * (n/1000.0) / elapsed;
-        printf("%10.3f %10.3f %.5f\n", elapsed, Gflops, mat_sum(r,n));
+        printf("%-35s", matmul_algos[i].description); fflush(stdout);
+        for (int rep=0; rep<nrep; rep++) {
+            /* Purge data from cache; `__builtin___clear_cache()` is a
+               built-in function that acts as a portable interface for
+               the appropriate low-level OS function, if
+               available. The (void*) casts are required to make the
+               clang compiler happy. */
+            __builtin___clear_cache((void*)p, (void*)(p + MAT_SIZE));
+            __builtin___clear_cache((void*)q, (void*)(q + MAT_SIZE));
+            __builtin___clear_cache((void*)r, (void*)(r + MAT_SIZE));
+            const double tstart = omp_get_wtime();
+            matmul_algos[i].algo(p, q, r, n);
+            const double elapsed = omp_get_wtime() - tstart;
+            printf(", %.2f", elapsed); fflush(stdout);
+        }
+        printf(", %.5f\n", mat_sum(r,n));
     }
     printf("\n");
 

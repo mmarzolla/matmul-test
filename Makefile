@@ -26,7 +26,7 @@ matmul_ikj_simd_omp.o: CFLAGS=-O2 -fopenmp -march=native -ffast-math
 matmul_dac.o: CFLAGS=-O2 -fopenmp -ftree-vectorize -march=native -ffast-math
 
 clean:
-	\rm -f $(EXE) $(OBJ) *~ output*.txt
+	\rm -f $(EXE) $(OBJ) *~ *.txt
 
 distclean: clean
 

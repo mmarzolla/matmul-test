@@ -6,7 +6,7 @@
  * <https://ocw.mit.edu/courses/6-172-performance-engineering-of-software-systems-fall-2018/>
  *
  * Transcribed with modifications by Moreno Marzolla <https://www.moreno.marzolla.name/>
- * Last modified 2025-09-19 by Moreno Marzolla.
+ * Last modified 2026-02-14 by Moreno Marzolla.
  *
  ****************************************************************************/
 
@@ -37,7 +37,8 @@ public class matmul_test {
             }
         }
 
-        System.out.printf("\nMatrix-Matrix multiplication (Java), %d x %d\n\n", n, n);
+        System.out.printf("# Matrix-Matrix multiplication, Java version\n");
+        System.out.printf("# n %d\n", n);
 
         final long start = System.currentTimeMillis();
         for (int i=0; i<n; i++) {
@@ -48,10 +49,6 @@ public class matmul_test {
             }
         }
         final double elapsed = (System.currentTimeMillis() - start) * 1e-3;
-        final double Gflops = 2 * (n/1000.0) * (n/1000.0) * (n/1000.0) / elapsed;
-
-        System.out.printf("      Time\t    Gflops\n");
-        System.out.printf("----------\t----------\n");
-        System.out.printf("%10.3f\t%10.3f\n\n", elapsed, Gflops);
+        System.out.printf("Java, %.3f\n", elapsed);
     }
 }
