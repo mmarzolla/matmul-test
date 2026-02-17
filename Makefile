@@ -15,9 +15,9 @@ matmul_test.class: matmul_test.java
 
 matmul_opt.o: CFLAGS=-O2
 
-matmul_ikj_simd_auto.o: CFLAGS=-O2 -ffast-math -ftree-vectorize -march=native
-
 matmul_ikj_omp.o: CFLAGS=-O2 -fopenmp
+
+matmul_ikj_simd_auto.o: CFLAGS=-O2 -ffast-math -ftree-vectorize -march=native
 
 matmul_ikj_simd.o: CFLAGS=-O2 -march=native -ffast-math
 

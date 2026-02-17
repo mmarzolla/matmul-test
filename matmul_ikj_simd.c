@@ -2,7 +2,7 @@
  *
  * matmul_ikj_simd.c - Matrix-Matrix multiply, SIMD
  *
- * Copyright (C) 2025 by Moreno Marzolla <https://www.moreno.marzolla.name/>
+ * Copyright (C) 2025, 2026 by Moreno Marzolla <https://www.moreno.marzolla.name/>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,16 +22,15 @@
 #include <assert.h>
 #include "common.h"
 
-void matmul_ikj_simd( const float *p, const float *q, float *r, int n)
+void matmul_ikj_simd( const float * RESTRICT p, const float * RESTRICT q, float * RESTRICT r, int n)
 {
-    const size_t VLEN = sizeof(__m256)/sizeof(float);
+    static const size_t VLEN = sizeof(__m256)/sizeof(float);
 
     assert(n % VLEN == 0); /* `n` must be multiple of `VLEN` */
 
     for (int i=0; i<n; i++) {
         for (int j=0; j<n; j += VLEN) {
-            __m256 *ptr = (__m256*)&r[i*n + j];
-            *ptr = _mm256_setzero_ps();
+            _mm256_store_ps( &r[i*n + j], _mm256_setzero_ps() );
         }
     }
 

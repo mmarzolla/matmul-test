@@ -24,7 +24,7 @@ void matmul_ikj_simd_auto( const float * RESTRICT p, const float * RESTRICT q, f
 {
     for (int i=0; i<n; i++) {
         for (int j=0; j<n; j++) {
-            r[i*n + j] = 0;
+            r[i*n + j] = 0.0f;
         }
     }
 
